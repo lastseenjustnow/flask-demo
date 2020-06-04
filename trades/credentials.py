@@ -1,5 +1,5 @@
 server = '192.168.1.201'
-database_zl = 'ZeroLayer'
+database_zl = 'JsohamFRX'
 database_js = 'Jsoham'
 username = 'Vlad'
 password = 'Kapusta2020'

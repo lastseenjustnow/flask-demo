@@ -192,14 +192,14 @@ def logic(file_path):
     preout=preout[preout['CurrPrice'].notnull()]
 
     # Send data to ZeroLayer CommodityTradesTemp
+    cursor_zl = getCursor(driver, server, database_zl, username, password)
+    cursor_zl.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
     preout.to_sql('CommodityTradesTemp', engine_zl, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
-    cursor_zl = getCursor(driver, server, database_zl, username, password)
     cursor_zl.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
     rc = cursor_zl.fetchall()
     rc = [x[0] for x in rc]
-    cursor_zl.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
     cursor_zl.close()
     return rc
 
