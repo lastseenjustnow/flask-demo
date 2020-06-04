@@ -8,10 +8,9 @@ from sqlalchemy import event
 
 import pdblp
 
-from tkinter import filedialog
-from tkinter import *
 
 from trades.credentials import *
+
 
 def getLmePrices(ser: pd.Series):
     con = pdblp.BCon(debug=True, host='192.168.1.142', port=6969, timeout=5000)
@@ -71,12 +70,7 @@ input_data_col_names = [
 ]
 
 
-def logic():
-    root = Tk()
-    root.filename = filedialog.askopenfilename(initialdir="/", title="Select file",
-                                               filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
-    file_path = root.filename
-    root.destroy()
+def logic(file_path):
 
     input_data = pd.read_csv(
         file_path,
