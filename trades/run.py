@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import pyodbc
 import datetime
@@ -17,7 +16,7 @@ def getLmePrices(ser: pd.Series):
     con.start()
     data = con.ref(list(ser), 'PX_SETTLE')
     con.stop()
-    return data['value']
+    return data
 
 
 
@@ -158,15 +157,10 @@ def logic(file_path):
 
 
     def opt_type_func(x): return '' if x['Com_Type']=='F' else x['Call_Put']
-    def buy_rate_func(x): return np.nan if not x['Buy_Sell']=='B' else x['Traded_Price'] if ( (x['Com_Type']=='F') | (x['Com_Type']=='O') ) else 0
-    def sell_rate_func(x): return np.nan if not x['Buy_Sell']=='S' else x['Traded_Price'] if ( (x['Com_Type']=='F') | (x['Com_Type']=='O') ) else 0
-
 
     preout=contract_code_absence[contract_code_absence[codes].notnull().any(axis=1)] \
         .drop_duplicates().merge(client_master, how="left", left_on="Client_info", right_on="ClientCode")
     preout=preout.assign(OptType = preout.apply(opt_type_func, axis=1).fillna(''))
-    preout=preout.assign(BuyRate = preout.apply(buy_rate_func, axis=1))
-    preout=preout.assign(SellRate = preout.apply(sell_rate_func, axis=1))
     preout['Margin']='0.00'
     preout['Comm']=preout['Comm'].astype(float).fillna(0.0)
     preout['Fees']='0.00'
@@ -179,10 +173,19 @@ def logic(file_path):
     #preout['Traded_Premium']=preout['Traded_Price']
     #preout['Option_Premium']=preout['Traded_Price']
     #preout['Client_Reference']=preout['Client_info']
-    preout['BuyRate'] = preout['BuyRate'].fillna('0.00').astype(str)
-    preout['SellRate'] = preout['SellRate'].fillna('0.00').astype(str)
+
     preout['Trade_Date']=preout['Trade_Date'].astype(str)
-    preout['Traded_Price'][preout['Traded_Price']==0]=getLmePrices('LM'+preout['Com_code'][preout['Traded_Price']==0]+'P '+preout['Contract_Month'][preout['Traded_Price']==0].dt.strftime("%Y%m%d")+' LME Comdty')
+
+    preout['ticker'] = 'LM' + preout['Com_code'] + 'P ' + preout['Contract_Month'].dt.strftime("%Y%m%d") + ' LME Comdty'
+    lme_prices = getLmePrices(preout['ticker'])
+    preout = preout.merge(lme_prices, how='inner', on='ticker').drop_duplicates()
+    preout['Traded_Price'] = preout['value']
+    preout = preout.drop(list(lme_prices.columns), axis=1)
+
+    preout['BuyRate'] = preout['Traded_Price']
+    preout['SellRate'] = preout['Traded_Price']
+    preout['BuyPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
+    preout['SellPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
 
     preout['Contract_Month']=preout['Contract_Month'].astype(str)
     preout['Delivery_Month']=preout['Delivery_Month'].astype(str)
