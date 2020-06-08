@@ -178,8 +178,24 @@ def logic(file_path):
 
     preout['ticker'] = 'LM' + preout['Com_code'] + 'P ' + preout['Contract_Month'].dt.strftime("%Y%m%d") + ' LME Comdty'
     lme_prices = getLmePrices(preout['ticker'])
-    preout = preout.merge(lme_prices, how='inner', on='ticker').drop_duplicates()
+    preout = preout.merge(lme_prices, how='inner', on='ticker').drop_duplicates().reset_index()
     preout['Traded_Price'] = preout['value']
+
+    # Extra fee for carry trades
+    preout.loc[1::2, "Traded_Price"][
+        (preout['Remarks'] == 'Carry') & (preout['Com_code'].apply(lambda x: x in ['NID', 'SND'])) & (
+                    preout['Buy_Sell'] == 'B')] = preout.loc[1::2, "Traded_Price"] + 1
+    preout.loc[1::2, "Traded_Price"][
+        (preout['Remarks'] == 'Carry') & (preout['Com_code'].apply(lambda x: x not in ['NID', 'SND'])) & (
+                    preout['Buy_Sell'] == 'B')] = preout.loc[1::2, "Traded_Price"] + 0.25
+    preout.loc[1::2, "Traded_Price"][
+        (preout['Remarks'] == 'Carry') & (preout['Com_code'].apply(lambda x: x in ['NID', 'SND'])) & (
+                    preout['Buy_Sell'] == 'S')] = preout.loc[1::2, "Traded_Price"] - 1
+    preout.loc[1::2, "Traded_Price"][
+        (preout['Remarks'] == 'Carry') & (preout['Com_code'].apply(lambda x: x not in ['NID', 'SND'])) & (
+                    preout['Buy_Sell'] == 'S')] = preout.loc[1::2, "Traded_Price"] - 0.25
+
+
     preout = preout.drop(list(lme_prices.columns), axis=1)
 
     preout['BuyRate'] = preout['Traded_Price']
