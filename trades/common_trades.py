@@ -1,14 +1,10 @@
 import pandas as pd
 import pyodbc
 import datetime
-import urllib
-import sqlalchemy
-from sqlalchemy import event
 
 import pdblp
 
-
-from trades.credentials import *
+from trades.odbc import *
 
 
 def getLmePrices(ser: pd.Series):
@@ -25,25 +21,6 @@ def getCursor(dr, s, db, u, p):
     params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
     return pyodbc.connect(params, autocommit=True).cursor()
 
-
-def getEngine(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
-    db_params = urllib.parse.quote_plus(params)
-    engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(db_params))
-
-    @event.listens_for(engine, "before_cursor_execute")
-    def receive_before_cursor_execute(
-            conn, cursor, statement, params, context, executemany
-    ):
-        if executemany:
-            cursor.fast_executemany = True
-
-    return engine
-
-
-# Engines
-engine_js = getEngine(driver, server, database_js, username, password)
-engine_zl = getEngine(driver, server, database_zl, username, password)
 
 # input_data
 
@@ -192,6 +169,7 @@ def logic(file_path):
     preout['Contract_Month'] = preout['Contract_Month'].astype(str)
     preout['Delivery_Month'] = preout['Delivery_Month'].astype(str)
     preout['LastTradeingDate'] = None
+    preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
 
     preout = preout[preout['CurrPrice'].notnull()]

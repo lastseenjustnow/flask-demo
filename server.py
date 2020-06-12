@@ -6,7 +6,7 @@ from flask import request, flash, redirect
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 
-from trades.run import logic
+from trades.common_trades import logic
 
 
 class ResultsTable(Table):
