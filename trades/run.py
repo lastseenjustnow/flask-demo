@@ -43,7 +43,6 @@ def getEngine(dr, s, db, u, p):
 
 # Engines
 engine_js = getEngine(driver, server, database_js, username, password)
-engine_zl = getEngine(driver, server, database_zl, username, password)
 
 # input_data
 
@@ -192,20 +191,21 @@ def logic(file_path):
     preout['Contract_Month'] = preout['Contract_Month'].astype(str)
     preout['Delivery_Month'] = preout['Delivery_Month'].astype(str)
     preout['LastTradeingDate'] = None
+    preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
 
     preout = preout[preout['CurrPrice'].notnull()]
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor_zl = getCursor(driver, server, database_zl, username, password)
-    cursor_zl.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
-    preout.to_sql('CommodityTradesTemp', engine_zl, index=False, if_exists="append", schema="dbo")
+    cursor = getCursor(driver, server, database_js, username, password)
+    cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
+    preout.to_sql('CommodityTradesTemp', engine_js, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
-    cursor_zl.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
-    rc = cursor_zl.fetchall()
+    cursor.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
+    rc = cursor.fetchall()
     rc = [x[0] for x in rc]
-    cursor_zl.close()
+    cursor.close()
     return rc
 
 
