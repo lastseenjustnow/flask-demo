@@ -189,7 +189,7 @@ def logic(file_path):
     preout['SellPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
 
     preout['Contract_Month'] = preout['Contract_Month'].astype(str)
-    preout['Delivery_Month'] = preout['Delivery_Month'].astype(str)
+    preout['Delivery_Month'] = preout['Delivery_Month'].dt.strftime("%b-%y").str.upper().astype(str)
     preout['LastTradeingDate'] = None
     preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
