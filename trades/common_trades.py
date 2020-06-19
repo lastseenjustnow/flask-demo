@@ -1,6 +1,5 @@
 import pandas as pd
-import pyodbc
-import datetime
+from dateutil.parser import parse
 
 import pdblp
 
@@ -15,11 +14,6 @@ def getLmePrices(ser: pd.Series):
     data = con.ref(list(ser), 'PX_SETTLE')
     con.stop()
     return data
-
-
-def getCursor(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
-    return pyodbc.connect(params, autocommit=True).cursor()
 
 
 # input_data
@@ -46,17 +40,20 @@ input_data_col_names = [
     'Trade_Time'
 ]
 
+parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
+
 
 def logic(file_path):
     input_data = pd.read_csv(
         file_path,
         names=input_data_col_names,
-        header=0,
-        parse_dates=['Contract_Month', 'Trade_Date', 'Delivery_Month'],
-        date_parser=lambda x: datetime.datetime.strptime(x, '%d/%m/%Y')
+        header=0
     ).dropna(subset=['Client_info'])
 
     input_data = input_data.fillna(0)
+
+    for attr in parse_dates:
+        input_data[attr] = input_data[attr].apply(parse)
 
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
@@ -155,9 +152,10 @@ def logic(file_path):
     lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'] == 0])
     preout = preout.merge(lme_prices, how='left', on='ticker').drop_duplicates().reset_index()
     # Extra fee for carry trades
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout['Comm']
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout['Comm']
-
+    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
+        'Comm']
+    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
+        'Comm']
 
     preout = preout.drop(list(lme_prices.columns), axis=1)
 
@@ -175,15 +173,15 @@ def logic(file_path):
     preout = preout[preout['CurrPrice'].notnull()]
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor_zl = getCursor(driver, server, database_zl, username, password)
-    cursor_zl.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
-    preout.to_sql('CommodityTradesTemp', engine_zl, index=False, if_exists="append", schema="dbo")
+    cursor = getCursor(driver, server, database_js, username, password)
+    cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
+    preout.to_sql('CommodityTradesTemp', engine_js, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
-    cursor_zl.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
-    rc = cursor_zl.fetchall()
+    cursor.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
+    rc = cursor.fetchall()
     rc = [x[0] for x in rc]
-    cursor_zl.close()
+    cursor.close()
     return rc
 
 

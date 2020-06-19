@@ -1,6 +1,7 @@
 import urllib
 import sqlalchemy
 from sqlalchemy import event
+import pyodbc
 
 
 def getEngine(dr, s, db, u, p):
@@ -18,14 +19,25 @@ def getEngine(dr, s, db, u, p):
     return engine
 
 
+def getCursor(dr, s, db, u, p):
+    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
+    return pyodbc.connect(params, autocommit=True).cursor()
+
+
 server = '192.168.1.201'
-database_zl = 'JsohamFRX'
-database_js = 'Jsoham'
 username = 'Vlad'
 password = 'Kapusta2020'
 driver = '{ODBC Driver 17 for SQL Server}'
 
-
 # Engines
+database_js = 'Jsoham'
 engine_js = getEngine(driver, server, database_js, username, password)
+
+database_frx = 'JsohamFRX'
+engine_frx = getEngine(driver, server, database_js, username, password)
+
+database_zl = 'ZeroLayer'
 engine_zl = getEngine(driver, server, database_zl, username, password)
+
+database_aarna = 'AarnaProcess'
+engine_aarna = getEngine(driver, server, database_aarna, username, password)

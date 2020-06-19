@@ -6,7 +6,8 @@ from flask import request, flash, redirect
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 
-from trades.common_trades import logic
+from trades import common_trades
+from trades import security_prices
 
 
 class ResultsTable(Table):
@@ -57,10 +58,19 @@ def upload_file():
             filename = secure_filename(file.filename)
             filepath = UPLOAD_FOLDER + filename
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            res = ResultsTable([ResultInfo(x) for x in logic(filepath)])
+            res = ResultsTable([ResultInfo(x) for x in common_trades.logic(filepath)])
             return render_template('results.html', table=res)
     return render_template('index.html')
 
 
+@app.route('/generate_prices', methods=['GET', 'POST'])
+def generate_prices():
+    res = ResultsTable([ResultInfo(x) for x in security_prices.logic(request.form['File Date'])])
+    return render_template('results.html', table=res)
+
+
 if __name__ == '__main__':
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+
     app.run(debug=True, host='192.168.1.108')
