@@ -12,6 +12,7 @@ def getSecPrices(df: pd.DataFrame):
     con.stop()
     return data
 
+
 def logic(date):
     result = pd.read_sql_query("exec SP_SettlementPriceBloombergTickers '{}'".format(date), engine_aarna)
 

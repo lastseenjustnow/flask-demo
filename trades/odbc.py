@@ -34,7 +34,7 @@ database_js = 'Jsoham'
 engine_js = getEngine(driver, server, database_js, username, password)
 
 database_frx = 'JsohamFRX'
-engine_frx = getEngine(driver, server, database_js, username, password)
+engine_frx = getEngine(driver, server, database_frx, username, password)
 
 database_zl = 'ZeroLayer'
 engine_zl = getEngine(driver, server, database_zl, username, password)

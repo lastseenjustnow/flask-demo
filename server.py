@@ -24,7 +24,6 @@ app = Flask(__name__)
 UPLOAD_FOLDER = r'C:\\Users\\Vlad\\uploads\\'
 ALLOWED_EXTENSIONS = {'csv'}
 
-app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 

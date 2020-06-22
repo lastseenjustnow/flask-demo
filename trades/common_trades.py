@@ -1,5 +1,6 @@
 import pandas as pd
-from dateutil.parser import parse
+import numpy as np
+import re
 
 import pdblp
 
@@ -17,6 +18,9 @@ def getLmePrices(ser: pd.Series):
 
 
 # input_data
+
+database = database_frx
+engine = engine_frx
 
 input_data_col_names = [
     'Client_info',
@@ -40,8 +44,6 @@ input_data_col_names = [
     'Trade_Time'
 ]
 
-parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
-
 
 def logic(file_path):
     input_data = pd.read_csv(
@@ -52,8 +54,26 @@ def logic(file_path):
 
     input_data = input_data.fillna(0)
 
-    for attr in parse_dates:
-        input_data[attr] = input_data[attr].apply(parse)
+    parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
+
+    # Raise exception when dates do no comply with predefined formats
+    regexp = re.compile('(\d{2})(?P<s>[/.-])(\d{2})(?P=s)(\d{4})$')
+    bools = input_data[parse_dates].applymap(lambda x: bool(regexp.match(x)))
+    bools.index = bools.index + 1
+    incorrect_values = np.array(bools[bools == False].stack().index)
+    if len(incorrect_values):
+        message_text_func = np.vectorize(lambda x: "Row number is: {}, column: {}".format(x[0], x[1]))
+        messages = message_text_func(incorrect_values)
+        return np.append(
+            np.insert(messages, 0, "We could not parse dates over specified locations:"),
+            "Please, specify dates in following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'dd.mm.yyyy'"
+        )
+
+    # Parse dates with predefined explicitly stated formats
+    slash = input_data[parse_dates].apply(pd.to_datetime, format='%d/%m/%Y', errors='coerce')
+    underscore = input_data[parse_dates].apply(pd.to_datetime, format='%d-%m-%Y', errors='coerce')
+    dot = input_data[parse_dates].apply(pd.to_datetime, format='%d.%m.%Y', errors='coerce')
+    input_data[parse_dates] = slash.combine_first(underscore).combine_first(dot)
 
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
@@ -165,29 +185,24 @@ def logic(file_path):
     preout['SellPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
 
     preout['Contract_Month'] = preout['Contract_Month'].astype(str)
-    preout['Delivery_Month'] = preout['Delivery_Month'].astype(str)
+    preout['Delivery_Month'] = preout['Delivery_Month'].dt.strftime("%b-%y").str.upper().astype(str)
     preout['LastTradeingDate'] = None
     preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
 
+    missing_prices_count = len(preout[preout['CurrPrice'].isnull()])
     preout = preout[preout['CurrPrice'].notnull()]
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor = getCursor(driver, server, database_js, username, password)
+    cursor = getCursor(driver, server, database, username, password)
     cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
-    preout.to_sql('CommodityTradesTemp', engine_js, index=False, if_exists="append", schema="dbo")
+    preout.to_sql('CommodityTradesTemp', engine, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
     cursor.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
+    rc.insert(0, "Database updated: {}".format(database))
+    rc.append("BBG prices missing for contracts number: {}".format(missing_prices_count))
     cursor.close()
     return rc
-
-
-def main():
-    return logic()
-
-
-if __name__ == "__main__":
-    main()
