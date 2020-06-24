@@ -124,7 +124,7 @@ def logic(file_path):
         #    'Traded_Premium',
         #    'Option_Premium',
         #    'Client_Reference',
-        #    'Remarks',
+        'Remarks',
         'Trade_Time',
         'Trade_Source',
         'LastTradeingDate'
