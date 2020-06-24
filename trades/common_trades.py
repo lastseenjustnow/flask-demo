@@ -1,14 +1,10 @@
 import pandas as pd
-import pyodbc
-import datetime
-import urllib
-import sqlalchemy
-from sqlalchemy import event
+import numpy as np
+import re
 
 import pdblp
 
-
-from trades.credentials import *
+from trades.odbc import *
 
 
 def getLmePrices(ser: pd.Series):
@@ -21,30 +17,10 @@ def getLmePrices(ser: pd.Series):
     return data
 
 
-def getCursor(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
-    return pyodbc.connect(params, autocommit=True).cursor()
-
-
-def getEngine(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
-    db_params = urllib.parse.quote_plus(params)
-    engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(db_params))
-
-    @event.listens_for(engine, "before_cursor_execute")
-    def receive_before_cursor_execute(
-            conn, cursor, statement, params, context, executemany
-    ):
-        if executemany:
-            cursor.fast_executemany = True
-
-    return engine
-
-
-# Engines
-engine_js = getEngine(driver, server, database_js, username, password)
-
 # input_data
+
+database = database_js
+engine = engine_js
 
 input_data_col_names = [
     'Client_info',
@@ -73,12 +49,31 @@ def logic(file_path):
     input_data = pd.read_csv(
         file_path,
         names=input_data_col_names,
-        header=0,
-        parse_dates=['Contract_Month', 'Trade_Date', 'Delivery_Month'],
-        date_parser=lambda x: datetime.datetime.strptime(x, '%d/%m/%Y')
+        header=0
     ).dropna(subset=['Client_info'])
 
     input_data = input_data.fillna(0)
+
+    parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
+
+    # Raise exception when dates do no comply with predefined formats
+    regexp = re.compile('(\d{2})(?P<s>[/.-])(\d{2})(?P=s)(\d{4})$')
+    bools = input_data[parse_dates].applymap(lambda x: bool(regexp.match(x)))
+    bools.index = bools.index + 1
+    incorrect_values = np.array(bools[bools == False].stack().index)
+    if len(incorrect_values):
+        message_text_func = np.vectorize(lambda x: "Row number is: {}, column: {}".format(x[0], x[1]))
+        messages = message_text_func(incorrect_values)
+        return np.append(
+            np.insert(messages, 0, "We could not parse dates over specified locations:"),
+            "Please, specify dates in following formats: 'dd/mm/yyyy', 'dd-mm-yyyy', 'dd.mm.yyyy'"
+        )
+
+    # Parse dates with predefined explicitly stated formats
+    slash = input_data[parse_dates].apply(pd.to_datetime, format='%d/%m/%Y', errors='coerce')
+    underscore = input_data[parse_dates].apply(pd.to_datetime, format='%d-%m-%Y', errors='coerce')
+    dot = input_data[parse_dates].apply(pd.to_datetime, format='%d.%m.%Y', errors='coerce')
+    input_data[parse_dates] = slash.combine_first(underscore).combine_first(dot)
 
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
@@ -177,9 +172,10 @@ def logic(file_path):
     lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'] == 0])
     preout = preout.merge(lme_prices, how='left', on='ticker').drop_duplicates().reset_index()
     # Extra fee for carry trades
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout['Comm']
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout['Comm']
-
+    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
+        'Comm']
+    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
+        'Comm']
 
     preout = preout.drop(list(lme_prices.columns), axis=1)
 
@@ -194,24 +190,19 @@ def logic(file_path):
     preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
 
+    missing_prices_count = len(preout[preout['CurrPrice'].isnull()])
     preout = preout[preout['CurrPrice'].notnull()]
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor = getCursor(driver, server, database_js, username, password)
+    cursor = getCursor(driver, server, database, username, password)
     cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
-    preout.to_sql('CommodityTradesTemp', engine_js, index=False, if_exists="append", schema="dbo")
+    preout.to_sql('CommodityTradesTemp', engine, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
     cursor.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
+    rc.insert(0, "Database updated: {}".format(database))
+    rc.append("BBG prices missing for contracts number: {}".format(missing_prices_count))
     cursor.close()
     return rc
-
-
-def main():
-    return logic()
-
-
-if __name__ == "__main__":
-    main()
