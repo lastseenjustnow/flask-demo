@@ -39,7 +39,7 @@ def logic(date):
     settle_price.to_sql('SettlementPriceTemp', engine_aarna, index=False, if_exists="append", schema="dbo")
 
     # TODO: database change for FRX
-    cursor = getCursor(driver, server, database_frx, username, password)
+    cursor = getCursor(driver, server, database_js, username, password)
     cursor.execute("exec ImportSettlementPrice '{}'".format(date))
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
