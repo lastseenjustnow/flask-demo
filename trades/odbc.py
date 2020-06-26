@@ -7,7 +7,7 @@ import pyodbc
 def getEngine(dr, s, db, u, p):
     params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
     db_params = urllib.parse.quote_plus(params)
-    engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(db_params))
+    engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(db_params), pool_pre_ping=True)
 
     @event.listens_for(engine, "before_cursor_execute")
     def receive_before_cursor_execute(
@@ -15,7 +15,6 @@ def getEngine(dr, s, db, u, p):
     ):
         if executemany:
             cursor.fast_executemany = True
-
     return engine
 
 
