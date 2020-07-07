@@ -192,7 +192,7 @@ def logic(file_path):
     preout = preout[selected_cols].rename(columns=rename_map)
 
     missing_prices_count = len(preout[preout['CurrPrice'].isnull()])
-    preout = preout[preout['CurrPrice'].notnull()]
+    preout = preout[preout['CurrPrice'].notnull()].drop_duplicates()
 
     # Send data to ZeroLayer CommodityTradesTemp
     cursor = getCursor(driver, server, database, username, password)
