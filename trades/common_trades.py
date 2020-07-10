@@ -76,6 +76,10 @@ def logic(file_path):
     dot = input_data[parse_dates].apply(pd.to_datetime, format='%d.%m.%Y', errors='coerce')
     input_data[parse_dates] = slash.combine_first(underscore).combine_first(dot)
 
+    # Remove redundant spaces at the beginning & the end of each string value
+    strs = input_data.select_dtypes(['object'])
+    input_data[strs.columns] = input_data[strs.columns].apply(lambda x: x.astype(str).str.strip())
+
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
     security_master_t1 = pd.read_sql_table("SecurityMasterT1", engine_js)
