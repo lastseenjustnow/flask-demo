@@ -5,9 +5,11 @@ import pyodbc
 
 
 def getEngine(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
+    params = 'DRIVER=' + dr + ';SERVER=' + s + \
+        ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
     db_params = urllib.parse.quote_plus(params)
-    engine = sqlalchemy.create_engine("mssql+pyodbc:///?odbc_connect={}".format(db_params), pool_pre_ping=True)
+    engine = sqlalchemy.create_engine(
+        "mssql+pyodbc:///?odbc_connect={}".format(db_params), pool_pre_ping=True)
 
     @event.listens_for(engine, "before_cursor_execute")
     def receive_before_cursor_execute(
@@ -19,13 +21,15 @@ def getEngine(dr, s, db, u, p):
 
 
 def getCursor(dr, s, db, u, p):
-    params = 'DRIVER=' + dr + ';SERVER=' + s + ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
+    params = 'DRIVER=' + dr + ';SERVER=' + s + \
+        ';PORT=1433;DATABASE=' + db + ';UID=' + u + ';PWD=' + p
     return pyodbc.connect(params, autocommit=True).cursor()
 
 
-server = '192.168.1.201'
-username = 'Vlad'
-password = 'Kapusta2020'
+# Server config-200
+server = '192.168.1.200'
+username = 'deepika'
+password = '7exGnjkof493'
 driver = '{ODBC Driver 17 for SQL Server}'
 
 # Engines
@@ -39,4 +43,8 @@ database_zl = 'ZeroLayer'
 engine_zl = getEngine(driver, server, database_zl, username, password)
 
 database_aarna = 'AarnaProcess'
+engine_aarna = getEngine(driver, server, database_aarna, username, password)
+
+# Added new database config
+database_dt = 'DropCopyTrade'
 engine_aarna = getEngine(driver, server, database_aarna, username, password)

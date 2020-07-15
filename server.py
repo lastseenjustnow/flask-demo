@@ -1,13 +1,17 @@
 from flask import Flask, render_template
 from flask_table import Table, Col
+from flask_cors import CORS
 
 import os
-from flask import request, flash, redirect
+from flask import request, flash, redirect, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.middleware.shared_data import SharedDataMiddleware
 
 from trades import common_trades
 from trades import security_prices
+from trades.odbc import *
+import json
+import collections
 
 
 class ResultsTable(Table):
@@ -20,7 +24,7 @@ class ResultInfo(object):
 
 
 app = Flask(__name__)
-
+cors = CORS(app)
 UPLOAD_FOLDER = r'C:\\Users\\Vlad\\uploads\\'
 ALLOWED_EXTENSIONS = {'csv'}
 
@@ -57,14 +61,34 @@ def upload_file():
             filename = secure_filename(file.filename)
             filepath = UPLOAD_FOLDER + filename
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            res = ResultsTable([ResultInfo(x) for x in common_trades.logic(filepath)])
+            res = ResultsTable([ResultInfo(x)
+                                for x in common_trades.logic(filepath)])
             return render_template('results.html', table=res)
     return render_template('index.html')
 
 
-@app.route('/generate_prices', methods=['GET', 'POST'])
+@app.route('/tt', methods=['GET'])
+def getTTDropCopy():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(
+        driver, server, database_dt, username, password)
+    rows = cursor_aarna.execute(
+        "select * from DropCopyTrade..DropCopyTrade where tradedate like'" + date + "';").fetchall()
+    columns = [],
+    items = [],
+
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], row))
+             for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@ app.route('/generate_prices', methods=['GET', 'POST'])
 def generate_prices():
-    res = ResultsTable([ResultInfo(x) for x in security_prices.logic(request.form['File Date'])])
+    res = ResultsTable([ResultInfo(x)
+                        for x in security_prices.logic(request.form['File Date'])])
     return render_template('results.html', table=res)
 
 
@@ -72,4 +96,4 @@ if __name__ == '__main__':
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
 
-    app.run(debug=True, host='192.168.1.108')
+    app.run(debug=True)
