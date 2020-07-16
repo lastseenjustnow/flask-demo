@@ -199,7 +199,7 @@ def logic(file_path):
     preout = preout[preout['CurrPrice'].notnull()].drop_duplicates()
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor = getCursor(driver, server, database, username, password)
+    cursor = getCursor(vlad_201, database)
     cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
     preout.to_sql('CommodityTradesTemp', engine, index=False, if_exists="append", schema="dbo")
 

@@ -71,12 +71,9 @@ def upload_file():
 def getTTDropCopy():
     date = request.args.get('date')
     print(date)
-    cursor_aarna = getCursor(
-        driver, server, database_dt, username, password)
+    cursor_aarna = getCursor(deepika_200, database_dt)
     rows = cursor_aarna.execute(
         "select * from DropCopyTrade..DropCopyTrade where tradedate like'" + date + "';").fetchall()
-    columns = [],
-    items = [],
 
     columns = [key[0] for key in cursor_aarna.description]
     items = [dict(zip([key[0] for key in cursor_aarna.description], row))
@@ -96,4 +93,4 @@ if __name__ == '__main__':
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
 
-    app.run(debug=True)
+    app.run(debug=True, host='192.168.1.108')
