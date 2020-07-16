@@ -32,14 +32,14 @@ def logic(date):
     settle_price = settle_price.rename(columns=rename_map)
     settle_price = settle_price[settle_price['price'].notnull()]
 
-    cursor_aarna = getCursor(driver, server, database_aarna, username, password)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
     cursor_aarna.execute("TRUNCATE TABLE SettlementPriceTemp")
     cursor_aarna.close()
 
     settle_price.to_sql('SettlementPriceTemp', engine_aarna, index=False, if_exists="append", schema="dbo")
 
     # TODO: database change for FRX
-    cursor = getCursor(driver, server, database_aarna, username, password)
+    cursor = getCursor(vlad_201, database_aarna)
     cursor.execute("exec ImportSettlementPrice_Vlad '{}'".format(date))
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
