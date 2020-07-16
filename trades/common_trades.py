@@ -52,7 +52,8 @@ def logic(file_path):
         header=0
     ).dropna(subset=['Client_info'])
 
-    input_data = input_data.fillna(0)
+    input_data[['Strike_Price', 'Call_Put']] = input_data[['Strike_Price', 'Call_Put']].fillna(0)
+    input_data['Traded_Price'] = input_data['Traded_Price'].fillna(-1)
 
     parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
 
@@ -74,6 +75,10 @@ def logic(file_path):
     underscore = input_data[parse_dates].apply(pd.to_datetime, format='%d-%m-%Y', errors='coerce')
     dot = input_data[parse_dates].apply(pd.to_datetime, format='%d.%m.%Y', errors='coerce')
     input_data[parse_dates] = slash.combine_first(underscore).combine_first(dot)
+
+    # Remove redundant spaces at the beginning & the end of each string value
+    strs = input_data.select_dtypes(['object'])
+    input_data[strs.columns] = input_data[strs.columns].apply(lambda x: x.astype(str).str.strip())
 
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
@@ -169,12 +174,12 @@ def logic(file_path):
     preout['Trade_Date'] = preout['Trade_Date'].astype(str)
 
     preout['ticker'] = 'LM' + preout['Com_code'] + 'P ' + preout['Contract_Month'].dt.strftime("%Y%m%d") + ' LME Comdty'
-    lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'] == 0])
+    lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'] == -1])
     preout = preout.merge(lme_prices, how='left', on='ticker').drop_duplicates().reset_index()
     # Extra fee for carry trades
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
+    preout['Traded_Price'][(preout['Traded_Price'] == -1) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
         'Comm']
-    preout['Traded_Price'][(preout['Traded_Price'] == 0) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
+    preout['Traded_Price'][(preout['Traded_Price'] == -1) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
         'Comm']
 
     preout = preout.drop(list(lme_prices.columns), axis=1)
@@ -191,7 +196,7 @@ def logic(file_path):
     preout = preout[selected_cols].rename(columns=rename_map)
 
     missing_prices_count = len(preout[preout['CurrPrice'].isnull()])
-    preout = preout[preout['CurrPrice'].notnull()]
+    preout = preout[preout['CurrPrice'].notnull()].drop_duplicates()
 
     # Send data to ZeroLayer CommodityTradesTemp
     cursor = getCursor(driver, server, database, username, password)
