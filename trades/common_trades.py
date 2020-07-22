@@ -79,6 +79,7 @@ def logic(file_path):
     # Remove redundant spaces at the beginning & the end of each string value
     strs = input_data.select_dtypes(['object'])
     input_data[strs.columns] = input_data[strs.columns].apply(lambda x: x.astype(str).str.strip())
+    input_data["Client_info"] = input_data["Client_info"].apply(lambda x: x.replace(" ", ""))
 
     # master entities
     client_master = pd.read_sql_table("ClientMaster", engine_js)
@@ -95,6 +96,7 @@ def logic(file_path):
         .assign(
         code_absence=contract_code_absence.groupby(contract_code_absence.index)['is_code_absense'].sum()
     )
+    contract_code_absence = contract_code_absence.loc[~contract_code_absence.index.duplicated(keep='first')]
     contract_code_absence[contract_code_absence.code_absence == 4]['Com_code'].drop_duplicates()
 
     # importfilest2
