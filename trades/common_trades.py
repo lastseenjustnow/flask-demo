@@ -92,6 +92,7 @@ def logic(file_path):
     )
 
     contract_code_absence["is_code_absense"] = contract_code_absence[codes].isnull().all(axis=1).astype(int)
+    contract_code_absence = contract_code_absence[contract_code_absence["is_code_absense"] == 0]
     contract_code_absence = contract_code_absence \
         .assign(
         code_absence=contract_code_absence.groupby(contract_code_absence.index)['is_code_absense'].sum()
