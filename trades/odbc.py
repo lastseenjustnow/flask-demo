@@ -50,5 +50,13 @@ engine_zl = getEngine(vlad_201, database_zl)
 database_aarna = 'AarnaProcess'
 engine_aarna = getEngine(vlad_201, database_aarna)
 
+
 # Added new database config
-database_dt = 'DropCopyTrade'
+database_cme = 'DropCopyTrade'
+engine_cme = getEngine(deepika_200, database_cme)
+
+database_cqg = 'CQGDropCopyInhouse'
+engine_cqg = getEngine(deepika_200, database_cqg)
+
+database_tt = 'DropCopyDataBase'
+engine_tt = getEngine(deepika_200, database_tt)
