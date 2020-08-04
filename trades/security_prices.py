@@ -40,7 +40,7 @@ def logic(date):
 
     # TODO: database change for FRX
     cursor = getCursor(vlad_201, database_aarna)
-    cursor.execute("exec ImportSettlementPrice_Vlad '{}'".format(date))
+    cursor.execute("exec ImportSettlementPrice '{}'".format(date))
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
     cursor.close()
