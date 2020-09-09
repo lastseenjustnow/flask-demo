@@ -13,6 +13,8 @@ from trades.odbc import *
 import json
 import collections
 import ssl
+import datetime
+import decimal
 
 
 class ResultsTable(Table):
@@ -119,6 +121,71 @@ def getTTDropCopy():
     return jsonify(j)
 
 
+@app.route('/openPositions', methods=['GET'])
+def getOpenPosition():
+    cursor = getCursor(deepika_201, database_jsoham)
+    date = request.args.get('date')
+    rows = cursor.execute(
+        "EXEC OpenPositionsCMD_DAS '" + date + "' ,'0','zz','0','zzz','0','ZZ','0','ZZ','0','ZZ','AARNA'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.datetime):
+            return (x.strftime("%Y-%m-%d"))
+        if isinstance(x, decimal.Decimal):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor.description]
+    items = [dict(zip([key[0] for key in cursor.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    # print(rows)
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/tradeDetails', methods=['GET'])
+def getTradeDetails():
+    cursor = getCursor(deepika_201, database_jsoham)
+    fromDate = request.args.get('fromDate')
+    toDate = request.args.get('toDate')
+    if request.args.get('otherCode') == 'null':
+        otherCode = 'IS NOT NULL'
+    elif request.args.get('otherCode'):
+        otherCode = 'like' + "'%" + request.args.get('otherCode') + "%'"
+    if request.args.get('clientCode') == 'null':
+        clientCode = 'IS NOT NULL'
+    elif request.args.get('clientCode'):
+        clientCode = 'like' + "'%" + request.args.get('clientCode') + "%'"
+
+    if request.args.get('securityCode') == 'null':
+        securityCode = 'IS NOT NULL'
+    elif request.args.get('securityCode'):
+        securityCode = ' = ' + request.args.get('securityCode')
+
+    print(clientCode)
+    print(securityCode)
+    print(otherCode)
+
+    rows = cursor.execute("SELECT T1.SecurityCode as ContractCode, S.securityname, (T.MktValue/(S.MarketLot*T.QTY)) AS TradePrice,S.securityCode, * FROM jsoham..TRADES T INNER JOIN jsoham..SECURITYMASTER S ON T.SecurityCode=S.SecurityCode INNER JOIN JSOHAM..SECURITYMASTERT1 T1 ON S.TICKER=T1.SecurityCode WHERE T.tradedate between '" +
+                          fromDate + "' and '" + toDate + "' and T.othercode " + otherCode + " and T.clientcode " + clientCode + " and T.securitycode " + securityCode + " ").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.datetime):
+            return (x.strftime("%Y-%m-%d"))
+        if isinstance(x, decimal.Decimal):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor.description]
+    items = [dict(zip([key[0] for key in cursor.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    # print(rows)
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
 @ app.route('/generate_prices', methods=['GET', 'POST'])
 def generate_prices():
     res = ResultsTable([ResultInfo(x)
@@ -137,7 +204,6 @@ if __name__ == '__main__':
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
     context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.load_cert_chain(r'C:\Users\Deepika\server.crt',
-                        r'C:\Users\Deepika\server.key')
-app.run(debug=True, host='192.168.1.111',
-        ssl_context=context)
+    context.load_cert_chain(r'C:\Users\Deepika\server.crt',
+                            r'C:\Users\Deepika\server.key')
+    app.run(debug=True, host='192.168.1.111', ssl_context=context)
