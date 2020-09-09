@@ -35,7 +35,8 @@ def getEngine(ms: MicrosoftServer, db):
 
 
 vlad_201 = MicrosoftServer('192.168.1.201', 'vlad', 'Kapusta2020')
-deepika_200 = MicrosoftServer('192.168.1.200', 'deepika', '7exGnjkof493')
+deepika_200 = MicrosoftServer('192.168.1.200', 'deepika', 'Dee141664')
+deepika_201 = MicrosoftServer('192.168.1.201', 'deepika', 'Dee141664')
 
 # Engines
 database_js = 'Jsoham'
@@ -50,5 +51,16 @@ engine_zl = getEngine(vlad_201, database_zl)
 database_aarna = 'AarnaProcess'
 engine_aarna = getEngine(vlad_201, database_aarna)
 
+
 # Added new database config
-database_dt = 'DropCopyTrade'
+database_cme = 'DropCopyTrade'
+engine_cme = getEngine(deepika_200, database_cme)
+
+database_cqg = 'CQGDropCopyInhouse'
+engine_cqg = getEngine(deepika_200, database_cqg)
+
+database_tt = 'DropCopyDataBase'
+engine_tt = getEngine(deepika_200, database_tt)
+
+database_jsoham = 'JSOHAM'
+engine_jsoham = getEngine(deepika_201, database_jsoham)
