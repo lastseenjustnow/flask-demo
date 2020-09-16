@@ -53,7 +53,6 @@ def logic(file_path):
     ).dropna(subset=['Client_info'])
 
     input_data[['Strike_Price', 'Call_Put']] = input_data[['Strike_Price', 'Call_Put']].fillna(0)
-    input_data['Traded_Price'] = input_data['Traded_Price'].fillna(-1)
 
     parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
 
@@ -177,12 +176,12 @@ def logic(file_path):
     preout['Trade_Date'] = preout['Trade_Date'].astype(str)
 
     preout['ticker'] = 'LM' + preout['Com_code'] + 'P ' + preout['Contract_Month'].dt.strftime("%Y%m%d") + ' LME Comdty'
-    lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'] == -1])
+    lme_prices = getLmePrices(preout['ticker'][preout['Traded_Price'].isnull()])
     preout = preout.merge(lme_prices, how='left', on='ticker').drop_duplicates().reset_index()
     # Extra fee for carry trades
-    preout['Traded_Price'][(preout['Traded_Price'] == -1) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
+    preout['Traded_Price'][(preout['Traded_Price'].isnull()) & (preout['Buy_Sell'] == 'B')] = preout['value'] + preout[
         'Comm']
-    preout['Traded_Price'][(preout['Traded_Price'] == -1) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
+    preout['Traded_Price'][(preout['Traded_Price'].isnull()) & (preout['Buy_Sell'] == 'S')] = preout['value'] - preout[
         'Comm']
 
     preout = preout.drop(list(lme_prices.columns), axis=1)
