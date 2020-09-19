@@ -15,7 +15,7 @@ import collections
 import ssl
 import datetime
 import decimal
-
+import requests
 
 class ResultsTable(Table):
     info = Col('Info')
@@ -192,6 +192,12 @@ def generate_prices():
                         for x in security_prices.logic(request.form['File Date'])])
     return render_template('results.html', table=res)
 
+@ app.route('/generate_bond_parameters', methods=['GET', 'POST'])
+def generate_bond_parameters():
+    data = {}
+    requests.post("http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
+    res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
+    return render_template('results.html', table=res)
 
 # if __name__ == '__main__':
 #     app.secret_key = 'super secret key'
