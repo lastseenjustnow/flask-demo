@@ -199,7 +199,7 @@ def generate_bond_parameters():
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
 
-1@ app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
+@ app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
 def reco_fcstone_trade_price():
     data = {"conf": {"to_date": request.form['fcst_trade_price']}}
     requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_trade_price/dag_runs", data=json.dumps(data))
