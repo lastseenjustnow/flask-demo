@@ -199,13 +199,13 @@ def generate_bond_parameters():
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
 
-# if __name__ == '__main__':
-#     app.secret_key = 'super secret key'
-#     app.config['SESSION_TYPE'] = 'filesystem'
-#     website_url = 'aarna.capital:5000'
-#     app.config['SERVER_NAME'] = website_url
-#     app.run(debug=True, ssl_context=(
-#         r'C:\Users\Deepika\server.crt', r'C:\Users\Deepika\server.key'))
+1@ app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
+def reco_fcstone_trade_price():
+    data = {"conf": {"to_date": request.form['fcst_trade_price']}}
+    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_trade_price/dag_runs", data=json.dumps(data))
+    res = ResultsTable([ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
     app.config['SESSION_TYPE'] = 'filesystem'
