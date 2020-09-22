@@ -205,10 +205,19 @@ def generate_bond_parameters():
     return render_template('results.html', table=res)
 
 
-@app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
-def reco_fcstone_trade_price():
-    data = {"conf": {"to_date": request.form['fcst_trade_price']}}
-    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_trade_price/dag_runs",
+@app.route('/reco_fcstone_trade_price_trnfhr', methods=['GET', 'POST'])
+def reco_fcstone_trade_price_trnfhr():
+    data = {"conf": {"to_date": request.form['fcst_trade_price_trnfhr']}}
+    requests.post("http://localhost:8080/api/experimental/dags/fcstone_trnfhr/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
+@app.route('/reco_fcstone_trade_price_st4f1', methods=['GET', 'POST'])
+def reco_fcstone_trade_price_st4f1():
+    data = {"conf": {"to_date": request.form['fcst_trade_price_st4f1']}}
+    requests.post("http://localhost:8080/api/experimental/dags/fcstone_st4f1/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])

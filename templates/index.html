@@ -26,9 +26,14 @@
 
 <h2>Reconciliation Options</h2>
 
-<form method=post action="/reco_fcstone_trade_price">
-    <label for="fcst_trade_price">FCStone Trade Price Reco (TRNFHR):</label>
-    <input type="date" id="fcst_trade_price" name="fcst_trade_price">
+<form method=post action="/reco_fcstone_trade_price_trnfhr">
+    <label for="fcst_trade_price_trnfhr">FCStone Trade Price Reco (TRNFHR):</label>
+    <input type="date" id="fcst_trade_price_trnfhr" name="fcst_trade_price_trnfhr">
+    <input type="submit" name="Execute reco" value="Execute reco">
+</form>
+<form method=post action="/reco_fcstone_trade_price_st4f1">
+    <label for="fcst_trade_price_st4f1">FCStone Trade Price Reco (ST4F1):</label>
+    <input type="date" id="fcst_trade_price_st4f1" name="fcst_trade_price_st4f1">
     <input type="submit" name="Execute reco" value="Execute reco">
 </form>
 <form method=post action="/reco_fcstone_settlement_prices">
