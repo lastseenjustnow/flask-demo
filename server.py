@@ -17,6 +17,7 @@ import datetime
 import decimal
 import requests
 
+
 class ResultsTable(Table):
     info = Col('Info')
 
@@ -134,6 +135,7 @@ def getOpenPosition():
         if isinstance(x, decimal.Decimal):
             return str(x)
         return (x)
+
     columns = [],
     items = [],
     columns = [key[0] for key in cursor.description]
@@ -167,8 +169,9 @@ def getTradeDetails():
     print(securityCode)
     print(otherCode)
 
-    rows = cursor.execute("SELECT T1.SecurityCode as ContractCode, S.securityname, (T.MktValue/(S.MarketLot*T.QTY)) AS TradePrice,S.securityCode, * FROM jsoham..TRADES T INNER JOIN jsoham..SECURITYMASTER S ON T.SecurityCode=S.SecurityCode INNER JOIN JSOHAM..SECURITYMASTERT1 T1 ON S.TICKER=T1.SecurityCode WHERE T.tradedate between '" +
-                          fromDate + "' and '" + toDate + "' and T.othercode " + otherCode + " and T.clientcode " + clientCode + " and T.securitycode " + securityCode + " ").fetchall()
+    rows = cursor.execute(
+        "SELECT T1.SecurityCode as ContractCode, S.securityname, (T.MktValue/(S.MarketLot*T.QTY)) AS TradePrice,S.securityCode, * FROM jsoham..TRADES T INNER JOIN jsoham..SECURITYMASTER S ON T.SecurityCode=S.SecurityCode INNER JOIN JSOHAM..SECURITYMASTERT1 T1 ON S.TICKER=T1.SecurityCode WHERE T.tradedate between '" +
+        fromDate + "' and '" + toDate + "' and T.othercode " + otherCode + " and T.clientcode " + clientCode + " and T.securitycode " + securityCode + " ").fetchall()
 
     def to_datetime(x):
         if isinstance(x, datetime.datetime):
@@ -176,6 +179,7 @@ def getTradeDetails():
         if isinstance(x, decimal.Decimal):
             return str(x)
         return (x)
+
     columns = [],
     items = [],
     columns = [key[0] for key in cursor.description]
@@ -186,25 +190,40 @@ def getTradeDetails():
     return jsonify(j)
 
 
-@ app.route('/generate_prices', methods=['GET', 'POST'])
+@app.route('/generate_prices', methods=['GET', 'POST'])
 def generate_prices():
     res = ResultsTable([ResultInfo(x)
                         for x in security_prices.logic(request.form['File Date'])])
     return render_template('results.html', table=res)
 
-@ app.route('/generate_bond_parameters', methods=['GET', 'POST'])
+
+@app.route('/generate_bond_parameters', methods=['GET', 'POST'])
 def generate_bond_parameters():
     data = {}
     requests.post("http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
 
-@ app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
+
+@app.route('/reco_fcstone_trade_price', methods=['GET', 'POST'])
 def reco_fcstone_trade_price():
     data = {"conf": {"to_date": request.form['fcst_trade_price']}}
-    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_trade_price/dag_runs", data=json.dumps(data))
-    res = ResultsTable([ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_trade_price/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
+
+
+@app.route('/reco_fcstone_settlement_prices', methods=['GET', 'POST'])
+def reco_fcstone_settlement_prices():
+    data = {"conf": {"to_date": request.form['fcst_settl_prices']}}
+    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_settlement_prices/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
