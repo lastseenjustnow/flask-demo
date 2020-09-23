@@ -18,14 +18,13 @@
     <input type="date" id="File Date" name="File Date">
     <input type="submit" name="Generate Prices" value="Generate Prices">
 </form>
-
 <h2>Generate Bond Parameters</h2>
 <form method=post action="/generate_bond_parameters">
+    <label for="bond_param_date">Reporting date set to:</label>
+    <input type="date" id="bond_param_date" name="bond_param_date">
     <input type="submit" name="Generate Bond Parameters" value="Generate Bond Parameters">
 </form>
-
 <h2>Reconciliation Options</h2>
-
 <form method=post action="/reco_fcstone_trade_price_trnfhr">
     <label for="fcst_trade_price_trnfhr">FCStone Trade Price Reco (TRNFHR):</label>
     <input type="date" id="fcst_trade_price_trnfhr" name="fcst_trade_price_trnfhr">

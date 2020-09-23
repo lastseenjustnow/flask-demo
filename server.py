@@ -199,7 +199,7 @@ def generate_prices():
 
 @app.route('/generate_bond_parameters', methods=['GET', 'POST'])
 def generate_bond_parameters():
-    data = {}
+    data = {"conf": {"to_date": request.form['bond_param_date']}}
     requests.post("http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
