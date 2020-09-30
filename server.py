@@ -122,6 +122,343 @@ def getTTDropCopy():
     return jsonify(j)
 
 
+@app.route('/fcpositions', methods=['GET'])
+def getFCPosition():
+    date = request.args.get('date')
+    contract = request.args.get('contractcode')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from FCSTONEPosition where pfc ='"+contract+"'and  recdate='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDFUKPosition', methods=['GET'])
+def getEDFUKPosition():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from EDFUKPosition where recdate='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDFUSPosition', methods=['GET'])
+def getEDFUSPosition():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from EDFUSPosition where recdate='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/Philipposition', methods=['GET'])
+def getPhilipposition():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from Philipposition where recdate='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/AdvantagePosition', methods=['GET'])
+def getAdvantagePosition():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from AdvantagePosition where recdate='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/fcbalances', methods=['GET'])
+def getFCBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from FcstoneBalances  where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDFUkBalances', methods=['GET'])
+def getEDFUKBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from EDFUkBalances where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDFUsBalances', methods=['GET'])
+def getEDFUsBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from EDFUSBalances where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/KgieFutureandFXBalances', methods=['GET'])
+def getKgieFutureandFXBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from KgieFutureandFXBalances where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/PhilipBalances', methods=['GET'])
+def getPhilipBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from PhilipBalances  where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/MayBankBalances', methods=['GET'])
+def getMayBankBalances():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from MayBankBalances  where InsertingDate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/fcsettlements', methods=['GET'])
+def getfcsettlements():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from GetFCESettlement  where recdate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDfUSSettlement', methods=['GET'])
+def getEefUSSettlement():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from GetEefUSSettlement where recdate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/EDFUKSettlement', methods=['GET'])
+def getEDFUKSettlement():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from GetEDFUKSettlement where recdate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/philipsettlement', methods=['GET'])
+def getphilipsettlement():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from getphilipsettlement where recdate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
+@app.route('/AdvantageTrades', methods=['GET'])
+def getAdvantageTrades():
+    date = request.args.get('date')
+    print(date)
+    cursor_aarna = getCursor(vlad_201, database_aarna)
+    rows = cursor_aarna.execute(
+        "select * from AdvantageTrades  where recdate ='" + date + "'").fetchall()
+
+    def to_datetime(x):
+        if isinstance(x, datetime.date):
+            return str(x)
+        return (x)
+    columns = [],
+    items = [],
+    columns = [key[0] for key in cursor_aarna.description]
+    items = [dict(zip([key[0] for key in cursor_aarna.description], [
+        to_datetime(x) for x in row])) for row in rows]
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
+
+
 @app.route('/openPositions', methods=['GET'])
 def getOpenPosition():
     cursor = getCursor(deepika_201, database_jsoham)
@@ -200,7 +537,8 @@ def generate_prices():
 @app.route('/generate_bond_parameters', methods=['GET', 'POST'])
 def generate_bond_parameters():
     data = {"conf": {"to_date": request.form['bond_param_date']}}
-    requests.post("http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
+    requests.post(
+        "http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
 
@@ -213,6 +551,7 @@ def reco_fcstone_trade_price_trnfhr():
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
+
 
 @app.route('/reco_fcstone_trade_price_st4f1', methods=['GET', 'POST'])
 def reco_fcstone_trade_price_st4f1():
