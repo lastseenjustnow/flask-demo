@@ -572,6 +572,15 @@ def reco_fcstone_settlement_prices():
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
 
+@app.route('/kgi_trade_price', methods=['GET', 'POST'])
+def reco_kgi_trade_price():
+    data = {"conf": {"to_date": request.form['kgi_trade_price']}}
+    requests.post("http://localhost:8080/api/experimental/dags/kgi_trade_price/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
