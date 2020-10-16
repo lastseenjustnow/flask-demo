@@ -10,7 +10,7 @@ from trades.odbc import *
 def getLmePrices(ser: pd.Series):
     if ser.empty:
         return pd.DataFrame(columns=['ticker', 'value'])
-    con = pdblp.BCon(debug=True, host='192.168.1.142', port=6970, timeout=5000)
+    con = pdblp.BCon(debug=True, host='192.168.1.196', port=6970, timeout=5000)
     con.start()
     data = con.ref(list(ser), 'PX_SETTLE')
     con.stop()

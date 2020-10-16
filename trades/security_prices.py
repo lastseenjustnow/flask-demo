@@ -6,7 +6,7 @@ from trades.odbc import *
 
 
 def getSecPrices(df: pd.DataFrame):
-    con = pdblp.BCon(debug=True, host='192.168.1.142', port=6970, timeout=5000)
+    con = pdblp.BCon(debug=True, host='192.168.1.196', port=6970, timeout=5000)
     con.start()
     data = pd.concat([con.ref(list(df['BloombergCode'][df['field'] == field]), field) for field in df.field.unique()])
     con.stop()
