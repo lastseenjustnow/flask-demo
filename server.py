@@ -566,7 +566,7 @@ def reco_fcstone_trade_price_st4f1():
 @app.route('/reco_fcstone_settlement_prices', methods=['GET', 'POST'])
 def reco_fcstone_settlement_prices():
     data = {"conf": {"to_date": request.form['fcst_settl_prices']}}
-    requests.post("http://localhost:8080/api/experimental/dags/Reco_FCStone_settlement_prices/dag_runs",
+    requests.post("http://localhost:8080/api/experimental/dags/reco_fcstone_settlement_prices/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
