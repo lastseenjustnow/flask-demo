@@ -581,6 +581,15 @@ def reco_kgi_trade_price():
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
 
+@app.route('/reco_client_broker', methods=['GET', 'POST'])
+def reco_client_broker():
+    data = {"conf": {"to_date": request.form['reco_client_broker']}}
+    requests.post("http://localhost:8080/api/experimental/dags/reco_client_broker/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
