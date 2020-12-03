@@ -1,7 +1,12 @@
 FROM python:3.6.5
 FROM ubuntu:18.04
 RUN apt-get update --fix-missing
-RUN apt-get install -y python3-pip unixodbc-dev curl
+RUN apt-get install -y \
+    python3-pip \
+    unixodbc-dev \
+    curl \
+    ca-certificates \
+    iputils-ping
 ENV APP /app
 RUN mkdir $APP
 WORKDIR $APP
