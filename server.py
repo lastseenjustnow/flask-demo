@@ -538,7 +538,7 @@ def generate_prices():
 def generate_bond_parameters():
     data = {"conf": {"to_date": request.form['bond_param_date']}}
     requests.post(
-        "http://localhost:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
+        "http://uatsrv01:8080/api/experimental/dags/bbg_bonds/dag_runs", data=json.dumps(data))
     res = ResultsTable([ResultInfo("Request to Bloomberg has been sent.")])
     return render_template('results.html', table=res)
 
@@ -546,7 +546,7 @@ def generate_bond_parameters():
 @app.route('/reco_fcstone_trade_price_trnfhr', methods=['GET', 'POST'])
 def reco_fcstone_trade_price_trnfhr():
     data = {"conf": {"to_date": request.form['fcst_trade_price_trnfhr']}}
-    requests.post("http://localhost:8080/api/experimental/dags/fcstone_trnfhr/dag_runs",
+    requests.post("http://uatsrv01:8080/api/experimental/dags/fcstone_trnfhr/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
@@ -556,7 +556,7 @@ def reco_fcstone_trade_price_trnfhr():
 @app.route('/reco_fcstone_trade_price_st4f1', methods=['GET', 'POST'])
 def reco_fcstone_trade_price_st4f1():
     data = {"conf": {"to_date": request.form['fcst_trade_price_st4f1']}}
-    requests.post("http://localhost:8080/api/experimental/dags/fcstone_st4f1/dag_runs",
+    requests.post("http://uatsrv01:8080/api/experimental/dags/fcstone_st4f1/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
@@ -566,7 +566,7 @@ def reco_fcstone_trade_price_st4f1():
 @app.route('/reco_fcstone_settlement_prices', methods=['GET', 'POST'])
 def reco_fcstone_settlement_prices():
     data = {"conf": {"to_date": request.form['fcst_settl_prices']}}
-    requests.post("http://localhost:8080/api/experimental/dags/reco_fcstone_settlement_prices/dag_runs",
+    requests.post("http://uatsrv01:8080/api/experimental/dags/reco_fcstone_settlement_prices/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
@@ -575,7 +575,7 @@ def reco_fcstone_settlement_prices():
 @app.route('/kgi_trade_price', methods=['GET', 'POST'])
 def reco_kgi_trade_price():
     data = {"conf": {"to_date": request.form['kgi_trade_price']}}
-    requests.post("http://localhost:8080/api/experimental/dags/kgi_trade_price/dag_runs",
+    requests.post("http://uatsrv01:8080/api/experimental/dags/kgi_trade_price/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
@@ -584,7 +584,7 @@ def reco_kgi_trade_price():
 @app.route('/reco_client_broker', methods=['GET', 'POST'])
 def reco_client_broker():
     data = {"conf": {"to_date": request.form['reco_client_broker']}}
-    requests.post("http://localhost:8080/api/experimental/dags/reco_client_broker/dag_runs",
+    requests.post("http://uatsrv01:8080/api/experimental/dags/reco_client_broker/dag_runs",
                   data=json.dumps(data))
     res = ResultsTable(
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
