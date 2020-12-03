@@ -6,7 +6,8 @@ RUN apt-get install -y \
     unixodbc-dev \
     curl \
     ca-certificates \
-    iputils-ping
+    iputils-ping \
+    net-tools
 ENV APP /app
 RUN mkdir $APP
 WORKDIR $APP
