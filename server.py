@@ -29,9 +29,10 @@ class ResultInfo(object):
 
 app = Flask(__name__)
 cors = CORS(app)
-if not os.path.isdir(os.path.expanduser('~') + r'\uploads'):
-    os.mkdir(os.path.expanduser('~') + r'\uploads')
-UPLOAD_FOLDER = os.path.expanduser('~') + r'\uploads'
+submit_dir = os.path.join(os.path.expanduser('~'), r'uploads')
+if not os.path.isdir(submit_dir):
+    os.mkdir(submit_dir)
+UPLOAD_FOLDER = submit_dir
 ALLOWED_EXTENSIONS = {'csv'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -103,8 +104,7 @@ def getCQGDropCopy():
     columns = [key[0] for key in cursor_aarna.description]
     items = [dict(zip([key[0] for key in cursor_aarna.description], row))
              for row in rows]
-    j = json.dumps({'items': items, 'columns': columns})
-    return jsonify(j)
+    return jsonify({'items': items, 'columns': columns})
 
 
 @app.route('/tt', methods=['GET'])
