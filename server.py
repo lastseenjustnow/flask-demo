@@ -104,7 +104,8 @@ def getCQGDropCopy():
     columns = [key[0] for key in cursor_aarna.description]
     items = [dict(zip([key[0] for key in cursor_aarna.description], row))
              for row in rows]
-    return jsonify({'items': items, 'columns': columns})
+    j = json.dumps({'items': items, 'columns': columns})
+    return jsonify(j)
 
 
 @app.route('/tt', methods=['GET'])
