@@ -29,7 +29,7 @@ class ResultInfo(object):
 
 app = Flask(__name__)
 cors = CORS(app)
-submit_dir = os.path.join(os.path.expanduser('~'), r'uploads')
+submit_dir = os.path.join(os.path.expanduser('~'), r'uploads') + os.sep
 if not os.path.isdir(submit_dir):
     os.mkdir(submit_dir)
 UPLOAD_FOLDER = submit_dir
