@@ -19,8 +19,8 @@ def getLmePrices(ser: pd.Series):
 
 # input_data
 
-database = database_frx
-engine = engine_frx
+database = database_js
+engine = engine_js
 
 input_data_col_names = [
     'Client_info',
