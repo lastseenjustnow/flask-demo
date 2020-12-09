@@ -29,9 +29,10 @@ class ResultInfo(object):
 
 app = Flask(__name__)
 cors = CORS(app)
-if not os.path.isdir(os.path.expanduser('~') + r'\uploads'):
-    os.mkdir(os.path.expanduser('~') + r'\uploads')
-UPLOAD_FOLDER = os.path.expanduser('~') + r'\uploads'
+submit_dir = os.path.join(os.path.expanduser('~'), r'uploads') + os.sep
+if not os.path.isdir(submit_dir):
+    os.mkdir(submit_dir)
+UPLOAD_FOLDER = submit_dir
 ALLOWED_EXTENSIONS = {'csv'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
