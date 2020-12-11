@@ -593,6 +593,15 @@ def reco_client_broker():
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
 
+@app.route('/interest_sheet', methods=['GET', 'POST'])
+def interest_sheet():
+    data = {"conf": {"to_date": request.form['interest_sheet']}}
+    requests.post("http://airflow:8080/api/experimental/dags/interest_sheet/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
