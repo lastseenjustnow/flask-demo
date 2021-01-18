@@ -80,7 +80,7 @@ def getCMEDropCopy():
     print(date)
     cursor_aarna = getCursor(deepika_200, database_cme)
     rows = cursor_aarna.execute(
-        "select * from DropCopyTrade..DropCopyTrade where tradedate like'%" + date + "%';").fetchall()
+        "select * from AarnaDropCopy..DropCopyTrade where tradedate like'%" + date + "%';").fetchall()
     columns = [],
     items = [],
 
@@ -97,7 +97,7 @@ def getCQGDropCopy():
     print(date)
     cursor_aarna = getCursor(deepika_200, database_cqg)
     rows = cursor_aarna.execute(
-        "select * from CQGDropCopyInhouse..TradePos where ctransacttime like '%" + date + "%';").fetchall()
+        "select * from AarnaDropCopy..CQGTradePos where ctransacttime like '%" + date + "%';").fetchall()
     columns = [],
     items = [],
 
@@ -114,7 +114,7 @@ def getTTDropCopy():
     print(date)
     cursor_aarna = getCursor(deepika_200, database_tt)
     rows = cursor_aarna.execute(
-        "select * from DropCopyDataBase..DropCopyTable_Inhouse where ordstatus in ('Filled','PartialFilled') and transacttime like '%" + date + "%';").fetchall()
+        "select * from AarnaDropCopy..TTFIXDropCopyTable where ordstatus in ('Filled','PartialFilled') and transacttime like '%" + date + "%';").fetchall()
     columns = [],
     items = [],
 
