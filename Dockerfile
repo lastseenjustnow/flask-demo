@@ -18,7 +18,7 @@ COPY . .
 ENV BLPAPI_ROOT /app/lib/blpapi_cpp_3.14.3.1
 ENV LD_LIBRARY_PATH /app/lib/blpapi_cpp_3.14.3.1/Linux
 ENV PATH "$PATH:/app/lib/blpapi_cpp_3.14.3.1"
-RUN pip3 install --index-url=https://bloomberg.bintray.com/pip/simple -Iv blpapi==3.14.0
+RUN pip3 install --index-url=https://bcms.bloomberg.com/pip/simple/ -Iv blpapi==3.14.0
 
 # Microsoft ODBC Driver 17
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
