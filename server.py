@@ -593,6 +593,15 @@ def reco_hgnh_trade_price():
         [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
     return render_template('results.html', table=res)
 
+@app.route('/edfuk_trade_price', methods=['GET', 'POST'])
+def reco_hgnh_trade_price():
+    data = {"conf": {"to_date": request.form['edfuk_trade_price']}}
+    requests.post("http://airflow:8080/api/experimental/dags/reco_edfuk_trade_price/dag_runs",
+                  data=json.dumps(data))
+    res = ResultsTable(
+        [ResultInfo("Command has been passed to a server. File will have been delivered to email in a few minutes.")])
+    return render_template('results.html', table=res)
+
 @app.route('/reco_client_broker', methods=['GET', 'POST'])
 def reco_client_broker():
     data = {"conf": {"to_date": request.form['reco_client_broker']}}
