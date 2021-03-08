@@ -594,7 +594,7 @@ def reco_hgnh_trade_price():
     return render_template('results.html', table=res)
 
 @app.route('/edfuk_trade_price', methods=['GET', 'POST'])
-def reco_hgnh_trade_price():
+def reco_edfuk_trade_price():
     data = {"conf": {"to_date": request.form['edfuk_trade_price']}}
     requests.post("http://airflow:8080/api/experimental/dags/reco_edfuk_trade_price/dag_runs",
                   data=json.dumps(data))
