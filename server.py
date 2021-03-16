@@ -467,7 +467,7 @@ def getOpenPosition():
     cursor = getCursor(deepika_201, database_jsoham)
     date = request.args.get('date')
     rows = cursor.execute(
-        "EXEC OpenPositionsCMD_DAS '" + date + "' ,'0','zz','0','zzz','0','ZZ','0','ZZ','0','ZZ','AARNA'").fetchall()
+        "EXEC OpenPositionsCRM '" + date + "' ,'0','zz','0','zzz','0','ZZ','0','ZZ','0','ZZ','AARNA'").fetchall()
 
     def to_datetime(x):
         if isinstance(x, datetime.datetime):

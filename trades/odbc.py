@@ -35,6 +35,7 @@ def getEngine(ms: MicrosoftServer, db):
 
 
 vlad_201 = MicrosoftServer('192.168.1.201', 'vlad', 'Kapusta2020')
+vlad_137 = MicrosoftServer('192.168.1.137', 'vlad', 'Kapusta2025')
 deepika_200 = MicrosoftServer('192.168.1.200', 'vlad', 'Kapusta2020')
 deepika_201 = MicrosoftServer('192.168.1.201', 'vlad', 'Kapusta2020')
 
@@ -50,6 +51,9 @@ engine_zl = getEngine(vlad_201, database_zl)
 
 database_aarna = 'AarnaProcess'
 engine_aarna = getEngine(vlad_201, database_aarna)
+
+database_backoffice = 'backoffice'
+engine_backoffice = getEngine(vlad_137, database_aarna)
 
 # Added new database config
 database_cme = 'DropCopyTrade'
