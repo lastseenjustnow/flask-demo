@@ -19,8 +19,8 @@ def getLmePrices(ser: pd.Series):
 
 # input_data
 
-database = database_js
-engine = engine_js
+database = database_backoffice
+engine = engine_backoffice
 
 input_data_col_names = [
     'Client_info',
@@ -31,6 +31,7 @@ input_data_col_names = [
     'Strike_Price',
     'Call_Put',
     'Trade_Date',
+    'Statement_Date',
     'Buy_Sell',
     'Traded_Qty',
     'Traded_Price',
@@ -54,7 +55,7 @@ def logic(file_path):
 
     input_data[['Strike_Price', 'Call_Put']] = input_data[['Strike_Price', 'Call_Put']].fillna(0)
 
-    parse_dates = ['Contract_Month', 'Trade_Date', 'Delivery_Month']
+    parse_dates = ['Contract_Month', 'Statement_Date', 'Trade_Date', 'Delivery_Month']
 
     # Raise exception when dates do no comply with predefined formats
     regexp = re.compile('(\d{2})(?P<s>[/.-])(\d{2})(?P=s)(\d{4})$')
@@ -81,8 +82,8 @@ def logic(file_path):
     input_data["Client_info"] = input_data["Client_info"].apply(lambda x: x.replace(" ", ""))
 
     # master entities
-    client_master = pd.read_sql_table("ClientMaster", engine_js)
-    security_master_t1 = pd.read_sql_table("SecurityMasterT1", engine_js)
+    client_master = pd.read_sql_table("ClientMaster", engine_backoffice)
+    security_master_t1 = pd.read_sql_table("SecurityMasterT1", engine_backoffice)
 
     # contract_code_absence! add exception
     codes = ["PHILLIP_CODE", "RJ_CONTRACT_CODE", "CQG_CODE", "SecurityCode"]
@@ -112,47 +113,38 @@ def logic(file_path):
         'Buy_Sell',
         'Traded_Qty',
         'Traded_Price',
-        'BuyRate',
-        'SellRate',
-        'Margin',
         'MCP',
         'Comm',
-        'Fees',
-        'BuyDealId',
-        'SellDealId',
-        'TickValue',
-        'TickSize',
         'Exch_code',
         'Delivery_Month',
-        #    'CPCode',
-        'TradeID',
-        #    'UTC',
         'Strike_Price',
-        #    'Traded_Premium',
-        #    'Option_Premium',
-        #    'Client_Reference',
         'Remarks',
         'Trade_Time',
         'Trade_Source',
-        'LastTradeingDate'
+        'Order_Id',
+        'Statement_Date'
     ]
 
     rename_map = {
-        "Curr_Code": "CurrencyCode",
-        "Com_code": "Ticker",
-        "Com_Type": "CmdType",
-        "Trade_Date": "TradeDate",
+        "Com_Type": "ComType",
+        'Exch_code': "Exchange",
+        "Com_code": "ContractCode",
         "Contract_Month": "ExpiryDate",
-        "Buy_Sell": "BuySellFlag",
+        'Strike_Price': "Strike",
+        'OptType': 'CallPut',
+        "Trade_Date": "TradeDate",
+        "Buy_Sell": "BuySell",
         'Traded_Qty': "Qty",
-        'Traded_Price': "CurrPrice",
+        'Traded_Price': "Price",
+        "Curr_Code": "Currency",
+        'Order_Id': 'OrderId',
+        'Trade_Source': 'TradeSource',
         'MCP': "MCPCode",
         'Comm': "Commission",
-        'Delivery_Month': "DelMonth",
-        'Exch_code': "MarketCode",
-        'Strike_Price': "StrikePrice",
+        'Remarks': 'Remarkes',
+        'Delivery_Month': "Delivery",
         'Trade_Time': 'TradeTime',
-        'Trade_Source': 'TradeSource'
+        'Statement_Date': 'StatementDate'
     }
 
     def opt_type_func(x): return '' if x['Com_Type'] == 'F' else x['Call_Put']
@@ -160,18 +152,7 @@ def logic(file_path):
     preout = contract_code_absence[contract_code_absence[codes].notnull().any(axis=1)] \
         .drop_duplicates().merge(client_master, how="left", left_on="Client_info", right_on="ClientCode")
     preout = preout.assign(OptType=preout.apply(opt_type_func, axis=1).fillna(''))
-    preout['Margin'] = '0.00'
     preout['Comm'] = preout['Comm'].astype(float).fillna(0.0)
-    preout['Fees'] = '0.00'
-    preout['BuyDealId'] = preout['Order_Id']
-    preout['SellDealId'] = preout['Order_Id']
-    preout['TickSize'] = 1
-    # preout['CPCode']=preout['MCP']
-    preout['TradeID'] = preout['Order_Id']
-    # preout['UTC']=''
-    # preout['Traded_Premium']=preout['Traded_Price']
-    # preout['Option_Premium']=preout['Traded_Price']
-    # preout['Client_Reference']=preout['Client_info']
 
     preout['Trade_Date'] = preout['Trade_Date'].astype(str)
 
@@ -186,27 +167,22 @@ def logic(file_path):
 
     preout = preout.drop(list(lme_prices.columns), axis=1)
 
-    preout['BuyRate'] = preout['Traded_Price']
-    preout['SellRate'] = preout['Traded_Price']
-    preout['BuyPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
-    preout['SellPrice'] = preout['Traded_Price'] * preout['Traded_Qty']
-
     preout['Contract_Month'] = preout['Contract_Month'].astype(str)
     preout['Delivery_Month'] = preout['Delivery_Month'].dt.strftime("%b-%y").str.upper().astype(str)
-    preout['LastTradeingDate'] = None
+
     preout['Comm'] = 0
     preout = preout[selected_cols].rename(columns=rename_map)
 
-    missing_prices_count = len(preout[preout['CurrPrice'].isnull()])
-    preout = preout[preout['CurrPrice'].notnull()].drop_duplicates()
+    missing_prices_count = len(preout[preout['Price'].isnull()])
+    preout = preout[preout['Price'].notnull()].drop_duplicates()
 
     # Send data to ZeroLayer CommodityTradesTemp
-    cursor = getCursor(vlad_201, database)
-    cursor.execute("TRUNCATE TABLE dbo.CommodityTradesTemp")
-    preout.to_sql('CommodityTradesTemp', engine, index=False, if_exists="append", schema="dbo")
+    cursor = getCursor(vlad_137, database)
+    cursor.execute("TRUNCATE TABLE dbo.TradesLog")
+    preout.to_sql('TradesLog', engine, index=False, if_exists="append", schema="dbo")
 
     # Exec SP
-    cursor.execute("exec CommodityContractMasterAndTradesUpload_CommonFile 'aarna'")
+    cursor.execute("exec TradesUploadCommonFile 'aarna'")
     rc = cursor.fetchall()
     rc = [x[0] for x in rc]
     rc.insert(0, "Database updated: {}".format(database))
