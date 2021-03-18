@@ -19,8 +19,8 @@ def getLmePrices(ser: pd.Series):
 
 # input_data
 
-database = database_backoffice
-engine = engine_backoffice
+database = database_js
+engine = engine_js
 
 input_data_col_names = [
     'Client_info',
@@ -82,8 +82,8 @@ def logic(file_path):
     input_data["Client_info"] = input_data["Client_info"].apply(lambda x: x.replace(" ", ""))
 
     # master entities
-    client_master = pd.read_sql_table("ClientMaster", engine_backoffice)
-    security_master_t1 = pd.read_sql_table("SecurityMasterT1", engine_backoffice)
+    client_master = pd.read_sql_table("ClientMaster", engine_js)
+    security_master_t1 = pd.read_sql_table("SecurityMasterT1", engine_js)
 
     # contract_code_absence! add exception
     codes = ["PHILLIP_CODE", "RJ_CONTRACT_CODE", "CQG_CODE", "SecurityCode"]
